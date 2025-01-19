@@ -1,0 +1,22 @@
+<div class="panel panel-default">
+  <div class="panel-heading clearfix">
+    <h3 class="panel-title">Contacts</h3>
+    <a href="#" class="btn btn-success pull-right" style="margin-top: -20px">New Contact</a>
+  </div>
+  <div class="panel-body">
+    <ul class="list-group">
+      @for (contact of contacts; track contact.id) {
+      <li class="list-group-item">
+        <img
+          [src]="contact.imageUrl"
+
+          alt="{{ contact.name }}"
+          width="50"
+          height="50"
+        />
+        {{ contact.name }}
+      </li>
+      }
+    </ul>
+  </div>
+</div>
