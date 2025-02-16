@@ -2,12 +2,12 @@
   <div class="panel-heading clearfix">
     <h3 class="panel-title">Contacts</h3>
     <a href="#" class="btn btn-success pull-right" style="margin-top: -20px"
-      >New Contact</a
+      routerLink="./new">New Contact</a
     >
   </div>
   <div class="panel-body">
     <ul class="list-group">
-      <cms-contact-item (click)="onSelected(contact)" *ngFor="let contact of contacts" [contact]="contact">
+      <cms-contact-item *ngFor="let contact of contacts" [contact]="contact">
       </cms-contact-item>
     </ul>
   </div>

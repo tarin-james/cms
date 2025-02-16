@@ -4,10 +4,10 @@ import { Document } from '../document.model';
 import { Output } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { DocumentService } from '../document.service';
-
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'cms-document-list',
-  imports: [DocumentItemComponent, NgFor],
+  imports: [RouterLink, DocumentItemComponent, NgFor],
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.css',
 })
@@ -18,11 +18,13 @@ export class DocumentListComponent {
   documents: Document[] = [];
   ngOnInit(): void {
     this.documents = this.documentService.getDocuments();
+    this.documentService.documentChangedEvent.subscribe(
+      (documents: Document[]) => {
+        this.documents = documents;
+      }
+    );
   }
 
-  onSelected(document: Document) {
-    this.documentService.documentSelectedEvent.emit(document);
-  }
 }
 
 // export class Document {

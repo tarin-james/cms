@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 import { DocumentListComponent } from './document-list/document-list.component';
-import { DocumentDetailComponent } from './document-detail/document-detail.component';
 import { Document } from './document.model';
-import { NgIf } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-documents',
-  imports: [DocumentListComponent, DocumentDetailComponent, NgIf],
+  imports: [RouterOutlet, DocumentListComponent],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.css'
 })
