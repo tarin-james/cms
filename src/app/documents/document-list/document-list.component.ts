@@ -5,6 +5,8 @@ import { Output } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { DocumentService } from '../document.service';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'cms-document-list',
   imports: [RouterLink, DocumentItemComponent, NgFor],
@@ -13,26 +15,22 @@ import { RouterLink } from '@angular/router';
 })
 export class DocumentListComponent {
   @Output() selectedDocumentEvent = new EventEmitter<Document>();
+  private subscription!: Subscription
+  
 
   constructor(private documentService: DocumentService) {}
   documents: Document[] = [];
   ngOnInit(): void {
     this.documents = this.documentService.getDocuments();
-    this.documentService.documentChangedEvent.subscribe(
-      (documents: Document[]) => {
-        this.documents = documents;
+    this.subscription = this.documentService.documentListChangedEvent.subscribe(
+      (documentsList: Document[]) => {
+        this.documents = documentsList;
       }
     );
   }
-
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
 }
 
-// export class Document {
-//   constructor(
-//     public id: string,
-//     public name: string,
-//     public description: string,
-//     public url: string,
-//     public children: Document[]
-//   ) {}
-// }
+

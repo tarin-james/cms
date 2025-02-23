@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { HeaderComponent } from './header.component';
-import { AppRoutingModule } from './app-routing.module';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 @Component({
   selector: 'cms-root',
