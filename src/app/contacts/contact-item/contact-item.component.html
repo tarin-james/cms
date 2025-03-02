@@ -1,4 +1,4 @@
-<li class="list-group-item" routerLink={{contact?.id}} routerLinkActive="active">
+<li class="list-group-item dnd" routerLink={{contact?.id}} routerLinkActive="active" cdkDrag  [cdkDragData]="contact" [cdkDragDisabled]="!isEditRoute">
     <img
       [src]="contact?.imageUrl"
 

@@ -5,16 +5,18 @@ import { NgFor } from '@angular/common';
 import { ContactItemComponent } from '../contact-item/contact-item.component';
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { CdkDropList } from '@angular/cdk/drag-drop';
+
 
 @Component({
   selector: 'app-contact-list',
   templateUrl: './contact-list.component.html',
   styleUrls: ['./contact-list.component.css'],
-  imports: [NgFor, ContactItemComponent, RouterLink],
+  imports: [NgFor, ContactItemComponent, RouterLink, CdkDropList],
 })
 export class ContactListComponent implements OnInit, OnDestroy {
   contacts: Contact[] = [];
-  private contactListSubscription!: Subscription;
+  private contactListSubscription!    : Subscription;
 
   constructor(private contactService: ContactService) {}
 
@@ -35,5 +37,9 @@ export class ContactListComponent implements OnInit, OnDestroy {
 
   onSelected(contact: Contact) {
     this.contactService.contactSelectedEvent.emit(contact);
+  }
+
+  canDrop(): boolean {
+    return false
   }
 }

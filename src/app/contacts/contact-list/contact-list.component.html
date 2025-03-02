@@ -1,12 +1,22 @@
 <div class="panel panel-default">
   <div class="panel-heading clearfix">
     <h3 class="panel-title">Contacts</h3>
-    <a href="#" class="btn btn-success pull-right" style="margin-top: -20px"
-      routerLink="./new">New Contact</a
+    <a
+      href="#"
+      class="btn btn-success pull-right"
+      style="margin-top: -20px"
+      routerLink="./new"
+      >New Contact</a
     >
   </div>
   <div class="panel-body">
-    <ul class="list-group">
+    <ul
+      class="list-group"
+      cdkDropList
+      id = "contactList"
+      [cdkDropListConnectedTo]="['groupList']"
+      [cdkDropListEnterPredicate]="canDrop"
+    >
       <cms-contact-item *ngFor="let contact of contacts" [contact]="contact">
       </cms-contact-item>
     </ul>
