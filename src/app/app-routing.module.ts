@@ -5,7 +5,6 @@ import { DocumentsComponent } from './documents/documents.component';
 import { MessageListComponent } from './messages/message-list/message-list.component';
 import { DocumentEditComponent } from './documents/document-edit/document-edit.component';
 import { DocumentDetailComponent } from './documents/document-detail/document-detail.component';
-import {DndModule} from 'ng2-dnd'
 
 // Define the root routes
 const appRoutes: Routes = [
@@ -21,7 +20,7 @@ const appRoutes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(appRoutes), DndModule.forRoot()], // Import and configure RouterModule with routes
+  imports: [RouterModule.forRoot(appRoutes)], // Import and configure RouterModule with routes
   exports: [RouterModule] // Export RouterModule for use in other modules
 })
 export class AppRoutingModule { }

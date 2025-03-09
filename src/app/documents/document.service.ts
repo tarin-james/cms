@@ -1,20 +1,38 @@
-import { EventEmitter, Injectable } from '@angular/core';
-import { Document } from './document.model';  // Import the Document model
-import { MOCKDOCUMENTS } from './MOCKDOCUMENTS';  // Import the MOCKDOCUMENTS array
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Subject } from 'rxjs';
+import { Document } from './document.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentService {
-  documents: Document[] = [];  
+  documents: Document[] = [];
   maxDocumentId: number;
   documentListChangedEvent = new Subject<Document[]>();
-  
-  constructor() {
-    this.documents = MOCKDOCUMENTS;  
+  private firebaseUrl = 'https://cms-project-851c2-default-rtdb.firebaseio.com/documents.json';
+
+  constructor(private http: HttpClient) {
     this.maxDocumentId = this.getMaxId();
+    this.loadDocumentsFromServer();  // Load documents initially
   }
+
+  // Helper method to load documents from Firebase
+  private loadDocumentsFromServer(): void {
+    this.http.get<Document[]>(this.firebaseUrl).subscribe(
+      (documents: Document[]) => {
+        this.documents = documents || [];
+        this.maxDocumentId = this.getMaxId();
+        this.documents.sort((a, b) => a.name.localeCompare(b.name));
+        this.documentListChangedEvent.next(this.documents.slice());
+      },
+      (error: any) => {
+        console.error('Error fetching documents:', error);
+      }
+    );
+  }
+
+  // Get the max ID for document IDs
   getMaxId(): number {
     let maxId = 0;
     for (let document of this.documents) {
@@ -26,51 +44,56 @@ export class DocumentService {
     return maxId;
   }
 
+  // Get the list of documents
   getDocuments(): Document[] {
     return this.documents.slice();
   }
 
-  addDocument(newDocument: Document) {
-    if (!newDocument) return;
+  // Store the updated list of documents in Firebase
+  storeDocuments(): void {
+    const documentsString = JSON.stringify(this.documents);
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    this.http.put(this.firebaseUrl, documentsString, { headers }).subscribe(
+      () => {
+        // Emit the updated list of documents when the server responds successfully
+        this.documentListChangedEvent.next(this.documents.slice());
+      },
+      (error: any) => {
+        console.error('Error saving documents:', error);
+      }
+    );
+  }
 
+  // Add a new document to the list
+  addDocument(newDocument: Document): void {
+    if (!newDocument) return;
     this.maxDocumentId++;
     newDocument.id = this.maxDocumentId.toString();
     this.documents.push(newDocument);
-    this.documentListChangedEvent.next(this.getDocuments());
+    this.storeDocuments();  // Save the updated list to Firebase
   }
 
-  
-
-  updateDocument(originalDocument: Document, newDocument: Document) {
+  // Update an existing document
+  updateDocument(originalDocument: Document, newDocument: Document): void {
     if (!originalDocument || !newDocument) return;
-
     const pos = this.documents.indexOf(originalDocument);
     if (pos < 0) return;
-
     newDocument.id = originalDocument.id;
     this.documents[pos] = newDocument;
-    this.documentListChangedEvent.next(this.getDocuments());
+    this.storeDocuments();  // Save the updated list to Firebase
   }
 
-
-  // Method to get a specific document by ID
-  getDocument(id: string): Document | null {
-    for (let document of this.documents) {
-      if (document.id === id) {
-        return document;  
-      }
-    }
-    return null;  
-  }
-
-  deleteDocument(document: Document | null) {
+  // Delete a document from the list
+  deleteDocument(document: Document | null): void {
     if (!document) return;
-
     const pos = this.documents.indexOf(document);
     if (pos < 0) return;
-
     this.documents.splice(pos, 1);
-    this.documentListChangedEvent.next(this.getDocuments());
+    this.storeDocuments();  // Save the updated list to Firebase
+  }
+
+  // Get a document by its ID
+  getDocument(id: string): Document | null {
+    return this.documents.find(document => document.id === id) || null;
   }
 }
-
