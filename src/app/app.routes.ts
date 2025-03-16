@@ -26,7 +26,7 @@ export const routes: Routes = [
     component: DocumentsComponent,
     children: [
       { path: 'new', component: DocumentEditComponent }, // Route for new document
-      { path: ':id', component: DocumentDetailComponent }, // Route for viewing a document
+      { path: ':id', component: DocumentDetailComponent,  data: { renderMode: 'dynamic' } }, // Route for viewing a document
       { path: ':id/edit', component: DocumentEditComponent }, // Route for editing a document
     ],
   }, // Documents page
