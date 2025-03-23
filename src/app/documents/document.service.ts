@@ -8,21 +8,17 @@ import { Document } from './document.model';
 })
 export class DocumentService {
   documents: Document[] = [];
-  maxDocumentId: number;
   documentListChangedEvent = new Subject<Document[]>();
-  private firebaseUrl = 'https://cms-project-851c2-default-rtdb.firebaseio.com/documents.json';
 
   constructor(private http: HttpClient) {
-    this.maxDocumentId = this.getMaxId();
-    this.loadDocumentsFromServer();  // Load documents initially
+    this.loadDocumentsFromServer(); // Load documents initially
   }
 
-  // Helper method to load documents from Firebase
+  // Load documents from the Node.js server
   private loadDocumentsFromServer(): void {
-    this.http.get<Document[]>(this.firebaseUrl).subscribe(
+    this.http.get<Document[]>('http://localhost:3000/documents').subscribe(
       (documents: Document[]) => {
         this.documents = documents || [];
-        this.maxDocumentId = this.getMaxId();
         this.documents.sort((a, b) => a.name.localeCompare(b.name));
         this.documentListChangedEvent.next(this.documents.slice());
       },
@@ -32,64 +28,52 @@ export class DocumentService {
     );
   }
 
-  // Get the max ID for document IDs
-  getMaxId(): number {
-    let maxId = 0;
-    for (let document of this.documents) {
-      const currentId = parseInt(document.id, 10);
-      if (currentId > maxId) {
-        maxId = currentId;
-      }
-    }
-    return maxId;
-  }
-
   // Get the list of documents
   getDocuments(): Document[] {
     return this.documents.slice();
   }
 
-  // Store the updated list of documents in Firebase
-  storeDocuments(): void {
-    const documentsString = JSON.stringify(this.documents);
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    this.http.put(this.firebaseUrl, documentsString, { headers }).subscribe(
-      () => {
-        // Emit the updated list of documents when the server responds successfully
-        this.documentListChangedEvent.next(this.documents.slice());
-      },
-      (error: any) => {
-        console.error('Error saving documents:', error);
-      }
-    );
-  }
-
-  // Add a new document to the list
+  // Add a new document
   addDocument(newDocument: Document): void {
     if (!newDocument) return;
-    this.maxDocumentId++;
-    newDocument.id = this.maxDocumentId.toString();
-    this.documents.push(newDocument);
-    this.storeDocuments();  // Save the updated list to Firebase
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    this.http.post<{ message: string, document: Document }>(
+      'http://localhost:3000/documents', newDocument, { headers }
+    ).subscribe(responseData => {
+      this.documents.push(responseData.document);
+      this.documentListChangedEvent.next(this.documents.slice());
+    });
   }
 
   // Update an existing document
   updateDocument(originalDocument: Document, newDocument: Document): void {
     if (!originalDocument || !newDocument) return;
-    const pos = this.documents.indexOf(originalDocument);
-    if (pos < 0) return;
-    newDocument.id = originalDocument.id;
-    this.documents[pos] = newDocument;
-    this.storeDocuments();  // Save the updated list to Firebase
+
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    this.http.put(`http://localhost:3000/documents/${originalDocument.id}`,
+      newDocument, { headers }
+    ).subscribe(() => {
+      const pos = this.documents.findIndex(d => d.id === originalDocument.id);
+      if (pos >= 0) {
+        this.documents[pos] = newDocument;
+        this.documentListChangedEvent.next(this.documents.slice());
+      }
+    });
   }
 
-  // Delete a document from the list
+  // Delete a document
   deleteDocument(document: Document | null): void {
     if (!document) return;
-    const pos = this.documents.indexOf(document);
-    if (pos < 0) return;
-    this.documents.splice(pos, 1);
-    this.storeDocuments();  // Save the updated list to Firebase
+
+    this.http.delete(`http://localhost:3000/documents/${document.id}`).subscribe(
+      () => {
+        this.documents = this.documents.filter(d => d.id !== document.id);
+        this.documentListChangedEvent.next(this.documents.slice());
+      }
+    );
   }
 
   // Get a document by its ID

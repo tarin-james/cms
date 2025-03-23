@@ -7,6 +7,8 @@ import {
 } from '@angular/core';
 import { Message } from '../message.model';
 import { MessageService } from '../message.service';
+import { ContactService } from '../../contacts/contact.service';
+import { Contact } from '../../contacts/contact.model';
 
 @Component({
   selector: 'cms-message-edit',
@@ -19,14 +21,15 @@ export class MessageEditComponent {
   @ViewChild('subject') subjectInput!: ElementRef;
   @ViewChild('msgText') msgTextInput!: ElementRef;
 
-  currentSender: string = '23';
-  constructor(private messageService: MessageService) {}
+  constructor(private messageService: MessageService, private contactService: ContactService) {}
   onSendMessage() {
     const subject = this.subjectInput.nativeElement.value;
     const msgText = this.msgTextInput.nativeElement.value;
 
     if (subject && msgText) {
-      const newMessage = new Message('1', subject, msgText, this.currentSender); // Hardcoded ID
+      const newMessage = new Message('101', subject, msgText,  this.contactService.getContact(
+        "101"
+      )); // Hardcoded ID
       this.messageService.addMessage(newMessage); // Emit the new message
     }
 

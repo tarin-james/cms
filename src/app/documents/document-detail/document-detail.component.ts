@@ -30,7 +30,7 @@ export class DocumentDetailComponent {
   }
   onView() {
     if (this?.document?.url) {
-      console.log(this.nativeWindow);
+  
       this.nativeWindow.open(this.document.url);
     }
   }
