@@ -16,6 +16,7 @@ export class MessageItemComponent {
   constructor(private contactService: ContactService) {}
   ngOnInit(): void {
 
+    console.log(this.message)
     const contact: Contact = this.contactService.getContact(
       this.message.sender.id
     );
